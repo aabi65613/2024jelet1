@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JELET-2024 — Formulas</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --glass: rgba(255,255,255,0.03);
+      --accent:#7c3aed; --accent-2:#06b6d4; --muted:#9ca3af; --glass-border: rgba(255,255,255,0.04);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071029 0%, #07142a 60%);color:#e6eef8}
+    .wrap{max-width:1200px;margin:28px auto;padding:28px}
+    header{display:flex;gap:20px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;box-shadow:0 6px 30px rgba(124,58,237,0.18), 0 2px 6px rgba(6,182,212,0.08)}
+    h1{font-size:24px;margin:0;color:#fff}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .btn{background:var(--glass);border:1px solid var(--glass-border);padding:8px 12px;border-radius:10px;color:#e6eef8;cursor:pointer;backdrop-filter:blur(6px);transition:transform .14s ease,box-shadow .14s;text-decoration:none}
+    .btn:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(2,6,23,0.6)}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:none}
+
+    .formula-list{display:grid;gap:18px}
+    .formula-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);padding:16px;border-radius:14px;box-shadow:0 10px 30px rgba(2,6,23,0.5)}
+    .formula-card h2{margin-top:0;font-size:18px;color:var(--accent)}
+    .formula-card p{margin:0 0 10px 0;line-height:1.6}
+    .formula-card .formula-content{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;margin-top:12px;border:1px solid rgba(255,255,255,0.03);color:#dbeafe}
+    .formula-card .formula-content p{margin:0}
+    .question-refs a{color:var(--accent-2);text-decoration:none;margin-right:10px}
+    .question-refs a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">JE</div>
+        <div>
+          <h1>JELET-2024 — Formulas</h1>
+          <p class="lead">All relevant formulas used in the questions, with links back to the questions.</p>
+        </div>
+      </div>
+      <a href="index.html" class="btn">Back to Questions</a>
+    </header>
+
+    <main id="formulaList" class="formula-list"></main>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    // Utility function to escape HTML for display
+    function escapeHtml(unsafe) {
+      return unsafe
+           .replace(/&/g, "&amp;")
+           .replace(/</g, "&lt;")
+           .replace(/>/g, "&gt;")
+           .replace(/"/g, "&quot;")
+           .replace(/'/g, "&#039;");
+    }
+
+    function renderFormulaList() {
+      const formulaListContainer = document.getElementById('formulaList');
+      formulaListContainer.innerHTML = '';
+      
+      // Group formulas by their content to avoid duplicates
+      const formulaMap = new Map();
+      
+      Object.keys(DATA).forEach(id => {
+        const data = DATA[id];
+        if (data.hasFormula) {
+          const formulaKey = data.formula.trim();
+          
+          if (!formulaMap.has(formulaKey)) {
+            formulaMap.set(formulaKey, {
+              formula: formulaKey,
+              section: data.section,
+              qIDs: []
+            });
+          }
+          formulaMap.get(formulaKey).qIDs.push(id);
+        }
+      });
+      
+      // Render the unique formulas
+      let formulaCount = 0;
+      formulaMap.forEach((item, key) => {
+        formulaCount++;
+        const formulaCard = document.createElement('div');
+        formulaCard.className = 'formula-card';
+        formulaCard.id = `q${item.qIDs[0]}`; // Use the first question ID as the anchor for linking
+
+        formulaCard.innerHTML = `
+          <h2>Formula ${formulaCount} (${item.section.toUpperCase()})</h2>
+          <div class="formula-content">
+            <p>\\(${item.formula.replace(/<br>/g, '\\\\')}\\)</p>
+          </div>
+          <p><strong>Used in Questions:</strong></p>
+          <div class="question-refs">
+            ${item.qIDs.map(id => `<a href="index.html#q${id}">Q${id}</a>`).join('')}
+          </div>
+        `;
+        formulaListContainer.appendChild(formulaCard);
+      });
+      
+      // Re-render math after adding new content
+      if (window.MathJax) {
+        MathJax.typesetPromise([formulaListContainer]);
+      }
+      
+      // Handle deep linking (scrolling to the correct formula)
+      if (window.location.hash) {
+        const targetId = window.location.hash.substring(1);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }
+
+    window.onload = renderFormulaList;
+  </script>
+</body>
+</html>

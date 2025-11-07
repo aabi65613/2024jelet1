@@ -38,8 +38,11 @@ p.lead{margin:0;color:var(--muted);font-size:13px}
 .chip.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;border:none}
 
 .questions{display:grid;gap:12px}
-.qcard{background:linear-gradient(180deg,var(--card), rgba(10,14,22,0.8));border-radius:12px;padding:14px;border:1px solid var(--glass-border);display:flex;flex-direction:column;gap:8px;transition:transform .12s ease,box-shadow .12s}
-.qcard:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.6)}
+.qcard{background:linear-gradient(180deg,var(--card), rgba(10,14,22,0.8));border-radius:12px;padding:14px;border:1px solid var(--glass-border);display:flex;flex-direction:column;gap:8px;transition:transform .12s ease,box-shadow .  .qcard:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.6)}
+.explanation-content{padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);margin-top:10px}
+.explanation-content p{margin:0 0 8px 0}
+.explanation-content a{color:var(--accent);text-decoration:none}
+.explanation-content a:hover{text-decoration:underline}
 .qhead{display:flex;justify-content:space-between;gap:12px;align-items:center}
 .qnum{background:linear-gradient(90deg,#0ea5a5, #7c3aed);padding:6px 10px;border-radius:8px;font-weight:700}
 .qtxt{font-size:15px;color:#e6eef8}
@@ -113,22 +116,14 @@ footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
   <aside class="side">
     <div class="formula-panel panel">
       <h3>Formulas & Quick Links</h3>
-      <div class="formula-list" id="formulaList"></div>
       <div style="margin-top:8px;text-align:center">
+        <a href="formula.html" class="btn primary" style="width:100%; margin-bottom: 8px;">View All Formulas</a>
         <button class="btn" id="downloadJSON">Download JSON</button>
       </div>
     </div>
   </aside>
 </main>
 
-  </div>  <!-- Modal for explanation & formula -->  <div id="modal" class="modal" role="dialog" aria-modal="true">
-    <div class="modal-backdrop" onclick="closeModal()"></div>
-    <div class="modal-card" role="document">
-      <button class="close-x" onclick="closeModal()">✕</button>
-      <h2 id="modalTitle">Question</h2>
-      <div id="modalBody" class="explain"></div>
-      <div id="modalFormulas" class="formula-content"></div>
-    </div>
   </div>  <script src="data.js"></script>
   <script>
   // Utility function to escape HTML for display
@@ -147,7 +142,7 @@ footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
     qCard.className = 'qcard';
     qCard.dataset.id = id;
     qCard.dataset.section = data.section;
-    qCard.onclick = () => openModal(id, data);
+    qCard.onclick = () => toggleExplanation(qCard, id, data);
 
     const qHead = document.createElement('div');
     qHead.className = 'qhead';
@@ -168,7 +163,16 @@ footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
     opts.innerHTML = `<div class="opt correct">${escapeHtml(answerText)}</div>`;
     
     qCard.appendChild(qHead);
-    // qCard.appendChild(opts); // Hide options until a better structure is provided
+    qCard.appendChild(opts);
+    
+    const explanationDiv = document.createElement('div');
+    explanationDiv.className = 'explanation-content';
+    explanationDiv.style.display = 'none'; // Initially hidden
+    explanationDiv.innerHTML = `
+      <p><strong>Explanation:</strong> ${escapeHtml(data.explanation)}</p>
+      ${data.hasFormula ? `<p><strong>Formula:</strong> <a href="formula.html#q${id}">View Formula for Q${id}</a></p>` : ''}
+    `;
+    qCard.appendChild(explanationDiv);
 
     return qCard;
   }
@@ -191,57 +195,20 @@ footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
     }
   }
 
-  // Function to render formula list
-  function renderFormulaList() {
-    const formulaListContainer = document.getElementById('formulaList');
-    formulaListContainer.innerHTML = '';
+  // Function to toggle explanation visibility
+  function toggleExplanation(qCard, id, data) {
+    const explanationDiv = qCard.querySelector('.explanation-content');
+    const isHidden = explanationDiv.style.display === 'none';
     
-    Object.keys(DATA).forEach(id => {
-      const data = DATA[id];
-      if (data.hasFormula) {
-        const formulaItem = document.createElement('div');
-        formulaItem.className = 'formula-item';
-        formulaItem.dataset.id = id;
-        formulaItem.onclick = () => openModal(id, data);
-        formulaItem.innerHTML = `Q${id}: ${data.section.toUpperCase()} Formula`;
-        formulaListContainer.appendChild(formulaItem);
+    if (isHidden) {
+      explanationDiv.style.display = 'block';
+      // Re-render math inside the newly visible explanation
+      if (window.MathJax) {
+        MathJax.typesetPromise([explanationDiv]);
       }
-    });
-  }
-
-  // Function to open the modal with question details
-  function openModal(id, data) {
-    document.getElementById('modalTitle').textContent = `Question ${id} - ${data.section.toUpperCase()}`;
-    
-    const modalBody = document.getElementById('modalBody');
-    modalBody.innerHTML = `
-      <p><strong>Question:</strong> \\(${data.q}\\)</p>
-      <p><strong>Correct Answer:</strong> ${escapeHtml(data.answer)}</p>
-      <p><strong>Explanation:</strong> ${escapeHtml(data.explanation)}</p>
-    `;
-    
-    const modalFormulas = document.getElementById('modalFormulas');
-    if (data.hasFormula) {
-      modalFormulas.innerHTML = `
-        <h4>Relevant Formula(s)</h4>
-        <p>\\(${data.formula.replace(/<br>/g, '\\\\')}\\)</p>
-      `;
-      modalFormulas.style.display = 'block';
     } else {
-      modalFormulas.style.display = 'none';
+      explanationDiv.style.display = 'none';
     }
-    
-    document.getElementById('modal').classList.add('open');
-    
-    // Re-render math inside the modal
-    if (window.MathJax) {
-      MathJax.typesetPromise([modalBody, modalFormulas]);
-    }
-  }
-
-  // Function to close the modal
-  function closeModal() {
-    document.getElementById('modal').classList.remove('open');
   }
 
   // Event listeners for filtering
@@ -303,7 +270,6 @@ footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
   // Initial render
   window.onload = () => {
     renderAllQuestions();
-    renderFormulaList();
   };
   </script>
 </body>
