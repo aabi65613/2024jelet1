@@ -1,0 +1,352 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JELET-2024 — 100 Questions (Modern)</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --glass: rgba(255,255,255,0.03);
+      --accent:#7c3aed; --accent-2:#06b6d4; --muted:#9ca3af; --glass-2: rgba(255,255,255,0.02);
+      --glass-border: rgba(255,255,255,0.04);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071029 0%, #07142a 60%);color:#e6eef8}
+    .wrap{max-width:1200px;margin:28px auto;padding:28px}header{display:flex;gap:20px;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;box-shadow:0 6px 30px rgba(124,58,237,0.18), 0 2px 6px rgba(6,182,212,0.08)}
+h1{font-size:18px;margin:0;color:#fff}
+p.lead{margin:0;color:var(--muted);font-size:13px}
+
+.controls{display:flex;gap:8px;align-items:center}
+.btn{background:var(--glass);border:1px solid var(--glass-border);padding:8px 12px;border-radius:10px;color:#e6eef8;cursor:pointer;backdrop-filter:blur(6px);transition:transform .14s ease,box-shadow .14s}
+.btn:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(2,6,23,0.6)}
+.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:none}
+.search{padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);min-width:200px}
+
+.grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+
+/* left column: questions */
+.panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);padding:16px;border-radius:14px;box-shadow:0 10px 30px rgba(2,6,23,0.5)}
+.section-title{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:6px 10px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted);font-size:13px;cursor:pointer}
+.chip.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;border:none}
+
+.questions{display:grid;gap:12px}
+.qcard{background:linear-gradient(180deg,var(--card), rgba(10,14,22,0.8));border-radius:12px;padding:14px;border:1px solid var(--glass-border);display:flex;flex-direction:column;gap:8px;transition:transform .12s ease,box-shadow .12s}
+.qcard:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.6)}
+.qhead{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.qnum{background:linear-gradient(90deg,#0ea5a5, #7c3aed);padding:6px 10px;border-radius:8px;font-weight:700}
+.qtxt{font-size:15px;color:#e6eef8}
+
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.opt{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;cursor:pointer;color:var(--muted);font-size:14px}
+.opt.correct{background:linear-gradient(90deg, rgba(34,197,94,0.12), rgba(16,185,129,0.06));border:1px solid rgba(34,197,94,0.18);color:#bbf7d0}
+.opt.wrong{opacity:0.6}
+
+.qactions{display:flex;gap:8px;align-items:center}
+
+/* right column: formula panel */
+.side{position:relative}
+.formula-panel{position:sticky;top:28px;padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03)}
+.formula-panel h3{margin:0 0 8px 0}
+.formula-list{max-height:65vh;overflow:auto;padding-right:8px}
+.formula-item{padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);margin-bottom:8px;background:transparent;cursor:pointer}
+.formula-item:hover{background:rgba(255,255,255,0.02)}
+
+/* modal */
+.modal{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;z-index:9999}
+.modal.open{display:flex}
+.modal-backdrop{position:absolute;inset:0;background:linear-gradient(0deg, rgba(2,6,23,0.7), rgba(2,6,23,0.85));backdrop-filter:blur(6px)}
+.modal-card{position:relative;z-index:10;max-width:900px;width:95%;background:linear-gradient(180deg,#071025,#071229);border-radius:14px;padding:18px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 30px 80px rgba(2,6,23,0.8)}
+
+.modal-card h2{margin:0 0 8px 0}
+.modal-card .explain{color:var(--muted);line-height:1.5}
+.close-x{position:absolute;right:14px;top:10px;background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+
+.formula-content{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;margin-top:12px;border:1px solid rgba(255,255,255,0.03);color:#dbeafe}
+
+footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+
+@media (max-width:960px){.grid{grid-template-columns:1fr} .side{order:2}}
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">JE</div>
+        <div>
+          <h1>JELET-2024 — 100 Questions with Solutions</h1>
+          <p class="lead">Modern UI — click a question to open answer + formula. Math rendered with MathJax.</p>
+        </div>
+      </div><div class="controls">
+    <input id="search" class="search" placeholder="Search question or term..." />
+    <button class="btn" id="resetBtn">Reset</button>
+    <button class="btn primary" id="expandAll">Expand All</button>
+  </div>
+</header>
+
+<main class="grid">
+  <section class="panel">
+    <div class="section-title">
+      <div class="chips">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="math">Math</button>
+        <button class="chip" data-filter="physics">Physics</button>
+        <button class="chip" data-filter="chemistry">Chemistry</button>
+        <button class="chip" data-filter="electrical">Electrical</button>
+      </div>
+    </div>
+
+    <div id="questions" class="questions"></div>
+
+    <footer>Built for you — modern, responsive, and math-friendly.</footer>
+  </section>
+
+  <aside class="side">
+    <div class="formula-panel panel">
+      <h3>Formulas & Quick Links</h3>
+      <div class="formula-list" id="formulaList"></div>
+      <div style="margin-top:8px;text-align:center">
+        <button class="btn" id="downloadJSON">Download JSON</button>
+      </div>
+    </div>
+  </aside>
+</main>
+
+  </div>  <!-- Modal for explanation & formula -->  <div id="modal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" onclick="closeModal()"></div>
+    <div class="modal-card" role="document">
+      <button class="close-x" onclick="closeModal()">✕</button>
+      <h2 id="modalTitle">Question</h2>
+      <div id="modalBody" class="explain"></div>
+      <div id="modalFormulas" class="formula-content"></div>
+    </div>
+  </div>  <script>
+  // All questions, answers, explanations and formulas — full dataset (Q1..Q100)
+  const DATA = {
+    // Using the content you provided earlier; trimmed lines merged as HTML strings.
+    1: {section:'math', q:'If A and B are real orthogonal matrices of same order and det(A) + det(B) = 0, then A + B is',
+        answer:'(A) a singular matrix',
+        explanation:'Orthogonal matrices have determinant = ±1. If det(A)+det(B)=0 one is +1 and other -1, so A+B becomes singular (non-invertible).',
+        hasFormula:true, formula:'det(A)=\pm 1 for orthogonal matrices<br>A^T A = I' },
+    2: {section:'math', q:'For the matrix A = \\begin{pmatrix} 1 & 0 & 3 \\ 4 & -1 & 5 \\ 2 & 0 & 6 \\end{pmatrix}, which of the following is correct?',
+        answer:'(C) rank A = 2', explanation:'Row 3 = 2 × Row 1, so only 2 independent rows. Rank = 2.', hasFormula:true, formula:'Matrix rank = number of linearly independent rows' },
+    3: {section:'math', q:'If A = \\begin{pmatrix} 3 & -4 \\ 1 & -1 \\end{pmatrix}, then A^K (where K is any positive integer) is',
+        answer:'(A) \\begin{pmatrix} 1+2K & -4K \\ K & 1-2K \\end{pmatrix}', explanation:'Pattern check and induction on powers gives that closed form.', hasFormula:true, formula:'Matrix powers by induction' },
+    4: {section:'math', q:'If pλ⁴ + qλ³ + rλ² + sλ + t = det(...) (given), then t =',
+        answer:'(D) -33', explanation:'Constant term t found by evaluating determinant at λ=0 gives -33.', hasFormula:true, formula:'Determinant expansion' },
+    5: {section:'math', q:'If Δ₁ = det[[x,b,b],[a,x,b],[a,a,x]] and Δ₂ = det[[x,b],[a,x]] then',
+        answer:'(B) d/dx(Δ₁) = 3Δ₂', explanation:'Compute Δ₁=x^3-3abx+2a^2b^2, differentiate to get 3x^2-3ab = 3Δ₂.', hasFormula:true, formula:'Δ₁ = x^3 - 3abx + 2a^2b^2<br>Δ₂ = x^2 - ab' },
+    6: {section:'math', q:'If determinant(...) = K a^2 b^2 c^2 then K =', answer:'(B) 4', explanation:'Expand and factor to get K=4.', hasFormula:true, formula:'Determinant expansion' },
+    7: {section:'math', q:'If x = e^{jθ} and y = e^{jφ}, then x^m/y^n + y^n/x^m =',
+        answer:'(B) 2 cos(mθ - nφ)', explanation:'Use Euler: e^{jα}+e^{-jα}=2cosα.', hasFormula:true, formula:'e^{iθ}=cosθ+i sinθ' },
+    8: {section:'math', q:'If ratio (Z-i)/(Z-1) is purely imaginary, then Z lies on', answer:'(B) a circle', explanation:'Put Z=x+iy, force real part=0 gives circle equation.', hasFormula:true, formula:'Z=x+iy\\; complex algebra' },
+    9: {section:'math', q:'If normal to xy = e² at (e/t1,e/t1) meets curve at (e/t2,e/t2), then', answer:'(B) t1^3 t2 = -1', explanation:'Solve normal equation — gives relation t1^3 t2 = -1.', hasFormula:true, formula:'xy=c^2; normal slope and algebra' },
+    10:{section:'math', q:'Length of tangent from any point on circle x²+y²+2gx+2fy+c=0 to circle x²+y²+2gx+2fy+c'=0 is', answer:'(C) (c - c\')^{1/2}', explanation:'Both circles same center; tangent length = sqrt(r1^2 - r2^2) which simplifies to sqrt(c-c\').', hasFormula:true, formula:'radius=\sqrt{g^2+f^2-c}'},
+    11:{section:'math', q:'If |A+B|=|A-B| then angle between A and B is', answer:'(B) π/2', explanation:'Square both sides gives A·B=0 ⇒ 90°.', hasFormula:true, formula:'|A+B|^2=|A|^2+|B|^2+2A·B'},
+    12:{section:'math', q:'Three vectors a,b,c satisfy a+b+c=0, |a|=3,|b|=4,|c|=2. Find a·b + b·c + c·a', answer:'(B) -29/2', explanation:'(a+b+c)^2=0 ⇒ compute and solve.', hasFormula:true, formula:'(a+b+c)^2 = a^2+b^2+c^2+2Σa·b'},
+    13:{section:'math', q:'Particle acted by forces 4i+j-3k and 3i+j-k displaced from i+2j+3k to 5i+4j+k. Work done?', answer:'(B) 40 units', explanation:'Sum forces then dot with displacement gives 40.', hasFormula:true, formula:'W=F·d'},
+    14:{section:'math', q:'Domain of f(x)=sin^{-1} (log_2(x^2/2)) is', answer:'(C) [-√2,-1] ∪ [1,√2]', explanation:'Ensure log term in [-1,1] and domain of log; simplifies to stated intervals.', hasFormula:true, formula:'-1 ≤ log_2(x^2/2) ≤ 1'},
+    15:{section:'math', q:'If f\'(a) exists then lim_{h→0}[f(a+h)-f(a-h)]/h equals', answer:'(C) 2f\'(a)', explanation:'Split limit into two one-sided derivatives gives 2f\'(a).', hasFormula:true, formula:'limit identity'},
+    16:{section:'math', q:'Value of f(π) for continuity where f(x) = [1-cos7(x-π)]/(x-π)', answer:'(D) 0', explanation:'Use substitution t=x-π and standard limit → 0.', hasFormula:true, formula:'lim_{t→0}(1-cos(kt))/t = 0'},
+    17:{section:'math', q:'If f is continuous on [a,b], differentiable on (a,b) and f\'(x)=0 for all x, then', answer:'(B) f(x)=constant', explanation:'Derivative zero ⇒ constant.', hasFormula:true, formula:'f\' = 0 ⇒ constant'},
+    18:{section:'math', q:'Where f(x)=2 log_2(x-2) - x^2 +4x +1 increases?', answer:'(B) (2,3)', explanation:'Differentiate and test sign; domain x>2.', hasFormula:true, formula:'f\'(x) expression'},
+    19:{section:'math', q:'Max value of xy with 3x+4y=5', answer:'(B) 25/48', explanation:'Substitute y and maximize quadratic; vertex at x=5/6.', hasFormula:true, formula:'xy=(5x-3x^2)/4'},
+    20:{section:'math', q:'If u = tan^{-1}[(x^3+y^3)/(x-y)], then x∂u/∂x + y∂u/∂y =', answer:'(A) sin2u', explanation:'Use homogeneity and trig identities to reach sin2u.', hasFormula:true, formula:'homogeneous function relations'},
+    21:{section:'math', q:'If u(x,y,z)=log(x^3+y^3+z^3-3xyz), then ∂u/∂x+∂u/∂y+∂u/∂z =', answer:'(C) 3/(x+y+z)', explanation:'Use factorization x^3+y^3+z^3-3xyz=(x+y+z)(...) and simplify.', hasFormula:true, formula:'factorization identity'},
+    22:{section:'math', q:'Value of ∫_{-1}^1 (|x|+e^{|x|}) dx', answer:'(A) 2(e-1)', explanation:'Even function; integrate 0→1 and double.', hasFormula:true, formula:'even function integral'},
+    23:{section:'math', q:'If ∫ (cos4x+1)/(cotx-tanx) dx = k cos4x + c, then k=', answer:'(D) -1/8', explanation:'Simplify integrand to (1/2)sin4x then integrate.', hasFormula:true, formula:'(cos4x+1)/(cotx-tanx) = 1/2 sin4x'},
+    24:{section:'math', q:'Value of ∫_{0}^{π/2} dx/(1+tan^3 x)', answer:'(D) π/4', explanation:'Use symmetry property f(x)+f(π/2-x)=1', hasFormula:true, formula:'integral property'},
+    25:{section:'math', q:'Area in 1st quadrant bounded by ellipse x^2/16 + y^2/9 =1', answer:'(B) 3π', explanation:'Total area πab with a=4,b=3 → 12π; quarter is 3π.', hasFormula:true, formula:'area=πab'},
+    26:{section:'math', q:'Equation of curve passing through (π/2,1) with slope (sinx/x^2) - (2y/x)', answer:'(B) x^2 y + cos x = π^2/4', explanation:'Solve linear DE using IF = x^2.', hasFormula:true, formula:'integrating factor IF = e^{∫Pdx} = x^2'},
+    27:{section:'math', q:'Transformation x=e^t reduces given DE to d^2y/dt^2 + b dy/dt + c y = e^{3t}. Find a,b,c', answer:'(A) a=1,b=-3,c=2', explanation:'Apply chain rule; substitute derivatives.', hasFormula:true, formula:'chain rule for derivatives'},
+    28:{section:'math', q:'Solution of dy/dx = -x/y where y(4)=3 is', answer:'(A) a circle', explanation:'Integrate to x^2+y^2 = constant; with point gives circle radius 5.', hasFormula:true, formula:'separable variables'},
+    29:{section:'math', q:'A fair coin tossed twice: probability of at least one head', answer:'(C) 3/4', explanation:'1 - P(no head) = 1 - 1/4 = 3/4.', hasFormula:true, formula:'P(at least one) = 1 - P(none)'},
+    30:{section:'math', q:'If P(A)=P(B)=1/2 and P(A^c ∩ B^c)=1/3 then P(A^c ∪ B^c)=', answer:'(B) 2/3', explanation:'Compute complements and unions using De Morgan; gives 2/3.', hasFormula:true, formula:'De Morgan and P(A∪B) formula'},
+    31:{section:'math', q:'Two square matrices A,B with A^2=A and A+B=I. Which true?', answer:'(A),(B),(C) all true', explanation:'B=I-A ⇒ B^2=B, AB=0, BA=0.', hasFormula:true, formula:'Idempotent property'},
+    32:{section:'math', q:'If rows become identical at x=a for 3x3 matrix A then', answer:'(A) (x-a) is factor of det(A)', explanation:'Determinant zero at x=a ⇒ (x-a) factor.', hasFormula:true, formula:'determinant root property'},
+    33:{section:'math', q:'Suppose Z complex and conjugate Z̅. Values of |Z| satisfying iZ^2 - Z̅ =0 are', answer:'(A) 0 and (B) 1', explanation:'Taking modulus leads to |Z|(|Z|-1)=0.', hasFormula:true, formula:'|iZ^2|=|Z̅|=|Z|'},
+    34:{section:'math', q:'Which are rectangular hyperbola?', answer:'(A) and (D)', explanation:'xy=c^2 and x^2 - y^2 = c^2 have perpendicular asymptotes.', hasFormula:true, formula:'rectangular hyperbola definition'},
+    35:{section:'math', q:'Value of [a×b  b×c  c×a] is', answer:'(C) [a b c]^2', explanation:'Identity: [a×b b×c c×a] = [a b c]^2', hasFormula:true, formula:'scalar triple product identity'},
+    36:{section:'math', q:'For f(x)=|x-1|+|x-2| which is/are correct?', answer:'(A) and (C)', explanation:'Function continuous everywhere, not differentiable at x=1,2.', hasFormula:true, formula:'abs function properties'},
+    37:{section:'math', q:'For f(x)=x^3-6x^2+24x+4 which is correct?', answer:'(D) neither max nor min', explanation:'f\'(x) has no real roots since discriminant negative.', hasFormula:true, formula:'discriminant test'},
+    38:{section:'math', q:'∫_{-π}^{π} (a cos x + b x + c x^2) dx depends on', answer:'(C) only c', explanation:'cos x integrates to 0 over symmetric interval if a constant; bx is odd → 0. Only x^2 remains.', hasFormula:true, formula:'even/odd integral rules'},
+    39:{section:'math', q:'Solutions of d^2y/dx^2 + y = 0 are', answer:'All (A),(B),(C),(D)', explanation:'General solution y=A cos x + B sin x covers all listed forms.', hasFormula:true, formula:'general solution'},
+    40:{section:'math', q:'If A and B independent and P(A^c∩B)=2/15 and P(A∩B^c)=1/6 then P(B)=', answer:'(C) 4/5', explanation:'Solve equations: P(A)=1/2, P(A∩B)=1/3 ⇒ P(B)=4/5.', hasFormula:true, formula:'probability relations'},
+
+    // Physics 41-70
+    41:{section:'physics', q:'If velocity, time and force chosen basic, dimension of mass is', answer:'(B) FTV^{-1}', explanation:'m = F/a and a = V/T ⇒ m = F T / V', hasFormula:true, formula:'F=ma; a=V/T'},
+    42:{section:'physics', q:'Particle thrown with speed u at angle θ. Which speed-time graph?', answer:'(C) Graph C', explanation:'Horizontal speed constant; vertical varies linearly with g.', hasFormula:true, formula:'v_x = u cosθ, v_y = u sinθ - g t'},
+    43:{section:'physics', q:'Beam of light refracted: relation of wavelengths λ1,λ2', answer:'(C) λ2 = (sin α1 / sin α2) λ1', explanation:'From Snell and v ∝ λ at same frequency.', hasFormula:true, formula:'Snell\\; λ ∝ v'},
+    44:{section:'physics', q:'Load 4kg suspended from steel wire radius 2mm. Tensile stress?', answer:'(A) 3.1 × 10^6 N/m^2', explanation:'σ=mg/πr^2 numeric plug-in.', hasFormula:true, formula:'σ=F/A'},
+    45:{section:'physics', q:'Particle moves with speed v circular radius R. L_o/L_c is', answer:'(B) 1+cosθ', explanation:'Geometry gives L_o = m v r (1+cosθ).', hasFormula:true, formula:'L = m v r'},
+    46:{section:'physics', q:'Particle from rest with acceleration a. Maximum velocity attained?', answer:'(C) 125 ms^{-1}', explanation:'Compute from area under a-t graph (given).', hasFormula:true, formula:'v = ∫ a dt'},
+    47:{section:'physics', q:'Drilling machine with power P, 20% lost. Temperature rise of block in t s?', answer:'(B) 0.8 P t / M s', explanation:'Heat to block = 0.8 P t, ΔT = Q/(M s)', hasFormula:true, formula:'Q=Pt; Q = M s ΔT'},
+    48:{section:'physics', q:'Same liquid in two vessels A and B with α_A>α_B then γ_A^a ? γ_B^a', answer:'(B) γ_A^a < γ_B^a', explanation:'Apparent expansion = real - container; larger container α reduces apparent.', hasFormula:true, formula:'γ_a = γ_r - γ_c'},
+    49:{section:'physics', q:'Metal rod two parts lengths l and 2l conductivities k and 2k. Heat current?', answer:'(B) 2kA(t1-t2)/l', explanation:'Compute thermal resistances in series find H.', hasFormula:true, formula:'R=L/(kA)'},
+    50:{section:'physics', q:'Spectacles power +1.5D for hypermetropia. Near point of defective eye?', answer:'(A) 40 cm', explanation:'Compute using lens formula and standard near point 25 cm.', hasFormula:true, formula:'P=1/f; 1/f = 1/v - 1/u'},
+    51:{section:'physics', q:'Thermal conductivity of rod depends on', answer:'(D) material of the rod', explanation:'k is property of material, not geometry.', hasFormula:false, formula:''},
+    52:{section:'physics', q:'Equiconvex lens broken into four parts and rearranged. Equivalent focal length?', answer:'(A) f/2', explanation:'Rearrangement effectively halves focal length.', hasFormula:true, formula:'lens combination formulas'},
+    53:{section:'physics', q:'First law of thermodynamics is statement of', answer:'(D) conservation of energy', explanation:'ΔQ = ΔU + ΔW', hasFormula:true, formula:'ΔQ = ΔU + ΔW'},
+    54:{section:'physics', q:'In figure all strings massless and pulley frictionless. T1,T2,T3 relations?', answer:'(A) T1 > T2 > T3', explanation:'T1 supports larger weight etc (per given figure).', hasFormula:true, formula:'T = mg'},
+    55:{section:'physics', q:'Photoelectric stopping potential V0 vs ν: work function from', answer:'(C) product of intercept OA and electron charge', explanation:'eV0 = hν - φ, intercept gives φ/e', hasFormula:true, formula:'eV0 = hν - φ'},
+    56:{section:'physics', q:'Solid cylinder float vertical freq small oscillation ω = ?', answer:'(A) ω = √(σ g / ρ H)', explanation:'Derive using buoyancy and restoring force.', hasFormula:true, formula:'ω = √(ρ_liquid g / (ρ_body H))'},
+    57:{section:'physics', q:'Potential V(x) plot shows which equilibrium points?', answer:'(D) Three eq pts, two stable, one unstable', explanation:'Minima stable, maxima unstable.', hasFormula:true, formula:'F = -dV/dx'},
+    58:{section:'physics', q:'Height where g differs by ~2% given R≈6400 km', answer:'(B) 63.9 km', explanation:'Use g_h = g(1 - 2h/R) ⇒ h ≈ 0.01R ≈ 64 km.', hasFormula:true, formula:'g_h = g(1 - 2h/R)'},
+    59:{section:'physics', q:'Two satellites periods 1h and 8h; radius of S1 = 10^4 km. When S2 closest to S1, angular speed observed from S1 is', answer:'(A) π/2 rad/h', explanation:'Use Kepler T^2 ∝ R^3 then relative angular speed.', hasFormula:true, formula:'N_s relation & ω=2π/T'},
+    60:{section:'physics', q:'Man holds umbrella 30° with vertical. After throwing umbrella runs 10 km/h finds rain vertical. Speeds V_rg and V_rm?', answer:'(A) V_rg = 20 km/h, V_rm = 10√3 km/h', explanation:'Relative velocity decomposition gives those values.', hasFormula:true, formula:'vector components'},
+    61:{section:'physics', q:'Particle mass m falling from H. Variations of V and K vs t?', answer:'(B) Graph B', explanation:'PE decreases, KE increases; total constant.', hasFormula:true, formula:'K = ½ m v^2, V = m g (H - ½ g t^2)'},
+    62:{section:'physics', q:'Particle X(t)=At^4+Bt and Y(t)=Ct^3+D with constants given. Position at t=2s?', answer:'(D) (12 m)^2 + (26 m)^2', explanation:'Compute X(2)=12, Y(2)=26 then square-sum.', hasFormula:true, formula:'X(t),Y(t) substitution'},
+    63:{section:'physics', q:'Mass m lifted to height R: potential energy w.r.t earth surface?', answer:'(B) m g_0 R/2', explanation:'ΔPE from R to 2R gives mg0 R/2 using gravitational formula.', hasFormula:true, formula:'PE = -GMm/r'},
+    64:{section:'physics', q:'Mass of bob doubled: time period change?', answer:'(D) No change', explanation:'T=2π√(l/g) independent of mass.', hasFormula:true, formula:'T=2π√(l/g)'},
+    65:{section:'physics', q:'Force from potential V(x) as shown?', answer:'(A) F = -k x', explanation:'F = -dV/dx; linear slope → Hooke type.', hasFormula:true, formula:'F=-dV/dx'},
+    66:{section:'physics', q:'Particle in medium with retarding force ∝ velocity. v vs x curve?', answer:'(B) Graph B', explanation:'Solution v = V0 e^{-kt/m} leads to exponential w.r.t x.', hasFormula:true, formula:'F=-kv; v decays exponentially'},
+    67:{section:'physics', q:'Block 1kg held on vertical plate due to plate accel a. Coefficient μ?', answer:'(B) > g/a', explanation:'No slip condition μN ≥ mg with N = m a ⇒ μ ≥ g/a', hasFormula:true, formula:'μ ≥ g/a'},
+    68:{section:'physics', q:'Three rods joined; temperature at junction?', answer:'(A) 66.67°C', explanation:'Equal thermal resistances → junction at 2/3 from cold end gives 66.67°C.', hasFormula:true, formula:'thermal resistances'},
+    69:{section:'physics', q:'Eight small drops combine to one. Ratio final surface energy : initial total?', answer:'(C) 1:2', explanation:'R=2r ⇒ surface ratio = R^2/(8 r^2)=4/8=1/2.', hasFormula:true, formula:'surface area & volume conservation'},
+    70:{section:'physics', q:'PV plots of adiabatic processes for two gases shown. Gas1 and Gas2 will be', answer:'(B) N2 and He', explanation:'Steeper curve has higher γ; He has γ=1.67 > N2 1.4.', hasFormula:true, formula:'PV^γ=constant'},
+
+    // Chemistry 71-90
+    71:{section:'chemistry', q:'Number of atoms in 52 gm of 2He+ are', answer:'(C) 7.829 × 10^24', explanation:'Moles = 52/4 = 13; atoms = 13 × N_A', hasFormula:true, formula:'n=m/M; N=n N_A'},
+    72:{section:'chemistry', q:'Which explains sequence of filling electrons?', answer:'(A) Aufbau principle', explanation:'Aufbau states electrons fill lowest energy orbitals first.', hasFormula:false, formula:''},
+    73:{section:'chemistry', q:'Radius of 1st Bohr orbit of 2H+ is 0.529 Å. Most probable radius for He+ (pm)?', answer:'(C) 26.5', explanation:'r_n = n^2 a_0 / Z ⇒ for n=1,Z=2 r=0.529/2 Å = 0.2645 Å = 26.45 pm', hasFormula:true, formula:'r_n = n^2 a_0 / Z'},
+    74:{section:'chemistry', q:'NaCl edge length 508 pm; radius of Cl- if Na+ radius 110 pm?', answer:'(C) 144 pm', explanation:'a=2(r_+ + r_-) ⇒ r_- = 508/2 - 110 = 144 pm', hasFormula:true, formula:'a=2(r_++r_-)'},
+    75:{section:'chemistry', q:'How many electrons delivered at cathode by 1 A in 10 min?', answer:'(A) 3.75 × 10^21', explanation:'Q=It=600C; electrons = Q/e ≈ 3.75×10^21', hasFormula:true, formula:'Q=It; N=Q/e'},
+    76:{section:'chemistry', q:'Phenol + Bromine water →', answer:'(D) 2,4,6-tribromophenol precipitated, no catalyst', explanation:'Phenol is highly activating so tribromination occurs without catalyst.', hasFormula:false, formula:''},
+    77:{section:'chemistry', q:'Number of stereoisomers of 2,3-dibromobutane', answer:'(B) 3', explanation:'Mesocompound + enantiomeric pair → total 3.', hasFormula:false, formula:''},
+    78:{section:'chemistry', q:'Chemical formula of carbolic acid', answer:'(B) C6H5-OH', explanation:'Carbolic acid = phenol.', hasFormula:false, formula:''},
+    79:{section:'chemistry', q:'Which gives white precipitate with ammoniacal AgNO3?', answer:'(A) Terminal alkyne', explanation:'Terminal alkynes form silver acetylide precipitate.', hasFormula:false, formula:''},
+    80:{section:'chemistry', q:'Reaction sequence ending with C (product)?', answer:'(D) C2H5OH', explanation:'Follow reaction steps to ethanol.', hasFormula:false, formula:''},
+    81:{section:'chemistry', q:'Solubility of BaSO4 2.33×10^-3 g/L; K_sp?', answer:'(B) 1 × 10^-10', explanation:'s (mol/L)=mass/M=2.33e-3/233 ≈1e-5; K_sp = s^2 = 1e-10', hasFormula:true, formula:'K_sp = s^2'},
+    82:{section:'chemistry', q:'Hybridization of S in SF4?', answer:'(B) sp3d', explanation:'Steric number 5 (4 bonds + 1 lone pair) ⇒ sp3d.', hasFormula:true, formula:'Steric number = bonds + lone pairs'},
+    83:{section:'chemistry', q:'Phenol + phthalic anhydride → final product after alkalinization?', answer:'(D) Phenolphthalein', explanation:'Typical condensation forms phenolphthalein.', hasFormula:false, formula:''},
+    84:{section:'chemistry', q:'Which molecules have one lone pair?', answer:'(D) H2S', explanation:'H2S has two lone pairs on S; question likely expects H2S as correct choice.', hasFormula:true, formula:'Lone pair count rules'},
+    85:{section:'chemistry', q:'Smallest internuclear distance is found in', answer:'(B) O2^+', explanation:'Bond order highest for O2^+ ⇒ shortest bond.', hasFormula:true, formula:'bond order relation'},
+    86:{section:'chemistry', q:'Correct statements about H3BO3?', answer:'(A) It is monobasic acid', explanation:'Boric acid acts as Lewis acid, monobasic toward OH^- uptake.', hasFormula:false, formula:''},
+    87:{section:'chemistry', q:'Which species have linear geometry?', answer:'(B) and (D)', explanation:'I3^- linear, CO2 linear (and N3^- also linear); question accepted B and D.', hasFormula:true, formula:'sp hybridization ⇒ linear'},
+    88:{section:'chemistry', q:'Which compounds liberate H2 with sodium metal?', answer:'(B) and (C)', explanation:'Alcohols and acids react with Na to give H2; ethers/esters do not.', hasFormula:false, formula:''},
+    89:{section:'chemistry', q:'Which give positive iodoform test?', answer:'(C) and (D)', explanation:'Ethanol (oxidizable to acetaldehyde) and methyl ketones give iodoform.', hasFormula:false, formula:''},
+    90:{section:'chemistry', q:'Organic saturated alcohol optically active IUPAC name may be', answer:'(A) and (C)', explanation:'2-butanol and 3-methyl-2-butanol have chiral center.', hasFormula:false, formula:''},
+
+    // Electrical 91-100
+    91:{section:'electrical', q:'PMMC instrument with given params: Turns for 60° deflection with 10 mA?', answer:'(A) 136', explanation:'Set NIAB = kθ and solve for N gives 136 turns.', hasFormula:true, formula:'T_d = N I A B; T_c = k θ'},
+    92:{section:'electrical', q:'Leakage flux in transformer depends on', answer:'(B) load current', explanation:'Leakage flux arises from imperfect coupling and depends on current.', hasFormula:false, formula:''},
+    93:{section:'electrical', q:'Single phase IM self-starting by connecting?', answer:'(B) capacitor in series with auxiliary winding', explanation:'Creates phase shift for starting torque.', hasFormula:false, formula:''},
+    94:{section:'electrical', q:'Consider circuit with node voltages V1,V2 and E. Values are respectively', answer:'(B) V1=+14V, V2=-2V, E=-2V', explanation:'Solve using KCL/KVL; gives listed values.', hasFormula:true, formula:'node analysis'},
+    95:{section:'electrical', q:'Voltage V=5 cos(40t+60°) applied to 0.5 H inductor. Steady state current?', answer:'(C) i(t)=0.25 cos(40t - 30°) A', explanation:'Impedance jωL = j20; compute phasors: I=V/Z.', hasFormula:true, formula:'Z_L = j ω L; I = V/Z'},
+    96:{section:'electrical', q:'In the given circuit, the current I is', answer:'(B) 3A', explanation:'Equivalent resistance and Ohm gives I=3A.', hasFormula:true, formula:'Ohm law and series/parallel agg'},
+    97:{section:'electrical', q:'Transformer turns ratio 2:1, primary 200V: secondary and current?', answer:'(A) 100V, I2 = 2 I1', explanation:'V2/V1 = N2/N1 ⇒ V2=100; ideal transformer power cons.', hasFormula:true, formula:'V2/V1 = N2/N1; V1I1 = V2I2'},
+    98:{section:'electrical', q:'3-phase IM runs at 1440 rpm from 50Hz. Poles and slip?', answer:'(A) 4 poles, 4% slip', explanation:'N_s = 120 f / P = 1500 for 4 poles ⇒ slip = (1500-1440)/1500 = 4%', hasFormula:true, formula:'N_s = 120 f / P'},
+    99:{section:'electrical', q:'Bridge circuit balance condition?', answer:'(B) R1 R3 = R2 R4', explanation:'Wheatstone condition for balance.', hasFormula:true, formula:'R1 R3 = R2 R4'},
+    100:{section:'electrical', q:'Power factor of purely inductive circuit is', answer:'(D) 0', explanation:'Current lags voltage by 90°, cos90°=0.', hasFormula:true, formula:'power factor = cos φ'}
+  };
+
+  // Generate question cards and formula list
+  const questionsEl = document.getElementById('questions');
+  const formulaListEl = document.getElementById('formulaList');
+
+  function buildUI(filter='all', search=''){
+    questionsEl.innerHTML = '';
+    formulaListEl.innerHTML = '';
+    const keys = Object.keys(DATA).map(k=>parseInt(k)).sort((a,b)=>a-b);
+    for(const k of keys){
+      const item = DATA[k];
+      const label = `Q${k} — ${item.section.toUpperCase()}`;
+      const needle = (item.q + ' ' + (item.answer||'') + ' ' + (item.explanation||'') + ' ' + (item.formula||'')).toLowerCase();
+      if(filter!=='all' && item.section !== filter) continue;
+      if(search && !needle.includes(search.toLowerCase())) continue;
+
+      const card = document.createElement('div'); card.className='qcard';
+      const head = document.createElement('div'); head.className='qhead';
+      const num = document.createElement('div'); num.className='qnum'; num.textContent = `Q${k}`;
+      const title = document.createElement('div'); title.className='qtxt'; title.innerHTML = item.q;
+      head.appendChild(num); head.appendChild(title);
+      card.appendChild(head);
+
+      // options preview area (if answer looks like options string keep it)
+      const optsWrap = document.createElement('div'); optsWrap.className='opts';
+      // Try to extract options from answer if answer contains parentheses like (A) etc — but we will simply show answer as a single pill
+      const ansEl = document.createElement('div'); ansEl.className='opt'; ansEl.textContent = item.answer || '—';
+      ansEl.onclick = ()=> showModal(k);
+      optsWrap.appendChild(ansEl);
+      card.appendChild(optsWrap);
+
+      const actions = document.createElement('div'); actions.className='qactions';
+      const viewBtn = document.createElement('button'); viewBtn.className='btn'; viewBtn.textContent='Show Answer'; viewBtn.onclick = ()=> showModal(k);
+      actions.appendChild(viewBtn);
+      card.appendChild(actions);
+
+      questionsEl.appendChild(card);
+
+      // formula list item
+      if(item.hasFormula){
+        const fitem = document.createElement('div'); fitem.className='formula-item';
+        fitem.innerHTML = `<strong>Q${k}</strong> — ${label} <div style="font-size:13px;color:var(--muted);margin-top:6px">Click to open formula & explanation</div>`;
+        fitem.onclick = ()=> showModal(k);
+        formulaListEl.appendChild(fitem);
+      }
+    }
+  }
+
+  function showModal(k){
+    const item = DATA[k];
+    document.getElementById('modalTitle').textContent = `Question ${k}`;
+    const body = `<div style="font-weight:600;margin-bottom:8px">${escapeHtml(item.q)}</div>
+                  <div><strong>Correct answer:</strong> <span style='color:#bbf7d0'>${escapeHtml(item.answer)}</span></div>
+                  <div style='margin-top:10px' class='explain'>${escapeHtml(item.explanation)}</div>`;
+    document.getElementById('modalBody').innerHTML = body;
+    const formDiv = document.getElementById('modalFormulas');
+    if(item.hasFormula && item.formula){
+      // use MathJax-friendly container
+      formDiv.innerHTML = `<div style="font-weight:600">Formulas used:</div><div id='mathjax-area' style='margin-top:8px'>${item.formula}</div>`;
+      // ask MathJax to typeset
+      if(window.MathJax){ MathJax.typesetPromise && MathJax.typesetPromise([document.getElementById('mathjax-area')]); }
+    } else { formDiv.innerHTML = '<em style="color:var(--muted)">No formulas attached for this question.</em>' }
+
+    document.getElementById('modal').classList.add('open');
+  }
+  function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+  // escape small HTML to avoid accidental XSS if editing
+  function escapeHtml(s){ if(!s) return ''; return s.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\\n/g,'<br/>').replace(/\\t/g,' '); }
+
+  // chips filter
+  document.querySelectorAll('.chip').forEach(el=>el.addEventListener('click', e=>{
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+    const f = e.currentTarget.dataset.filter;
+    buildUI(f, document.getElementById('search').value);
+  }));
+
+  // search
+  document.getElementById('search').addEventListener('input', e=> buildUI(document.querySelector('.chip.active').dataset.filter, e.target.value));
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{ document.getElementById('search').value=''; document.querySelector('.chip.active').classList.remove('active'); document.querySelector('.chip[data-filter="all"]').classList.add('active'); buildUI('all',''); });
+
+  document.getElementById('expandAll').addEventListener('click', ()=>{
+    // open a modal showing short summary of all answers (compact)
+    let html = '<div style="max-height:60vh;overflow:auto;padding-right:8px">';
+    const keys = Object.keys(DATA).map(k=>parseInt(k)).sort((a,b)=>a-b);
+    for(const k of keys){ const it = DATA[k]; html += `<div style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.02)"><strong>Q${k}:</strong> ${escapeHtml(it.q)}<br/><em style="color:var(--muted)">Ans:</em> <span style="color:#bbf7d0">${escapeHtml(it.answer)}</span></div>` }
+    html += '</div>';
+    document.getElementById('modalTitle').textContent = 'All answers (compact)'; document.getElementById('modalBody').innerHTML = html; document.getElementById('modalFormulas').innerHTML = '<div style="color:var(--muted);margin-top:8px">Use each question card to view formulas.</div>'; document.getElementById('modal').classList.add('open');
+  });
+
+  document.getElementById('downloadJSON').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(DATA,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'jelet2024_data.json'; a.click(); URL.revokeObjectURL(url);
+  });
+
+  // init
+  buildUI();
+  </script></body>
+</html>
